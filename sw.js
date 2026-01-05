@@ -1,5 +1,6 @@
-const CACHE_NAME = 'obreiros-icm-v6';
+const CACHE_NAME = 'obreiros-icm-v7';
 const ASSETS_TO_CACHE = [
+  './',
   './index.html',
   './manifest.json',
   'https://cdn.tailwindcss.com',
@@ -17,7 +18,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Ativação e limpeza
+// Ativação e limpeza de caches antigos
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -37,27 +38,26 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  // Se for uma navegação (abrir o app), prioriza a rede mas cai no index.html cacheado imediatamente em caso de erro/404
+  const url = new URL(event.request.url);
+
+  // Se for navegação (abrir o app)
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
-        .then((response) => {
-          if (response.status === 404) {
-            return caches.match('./index.html');
-          }
-          return response;
-        })
         .catch(() => {
-          return caches.match('./index.html');
+          return caches.match('./index.html') || caches.match('./');
         })
     );
     return;
   }
 
+  // Estratégia: Cache First, Network Fallback
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      return cachedResponse || fetch(event.request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+      if (cachedResponse) return cachedResponse;
+
+      return fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);
@@ -65,7 +65,10 @@ self.addEventListener('fetch', (event) => {
         }
         return networkResponse;
       }).catch(() => {
-        // Fallback para imagens ou outros recursos se necessário
+        // Se falhar a rede e não tiver cache, tenta o index para evitar tela branca
+        if (event.request.destination === 'document') {
+          return caches.match('./index.html');
+        }
       });
     })
   );
