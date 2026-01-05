@@ -1,9 +1,9 @@
-
 {
   "name": "Gestão de Obreiros ICM",
   "short_name": "Obreiros ICM",
   "description": "Sistema de relatório de cultos para obreiros da Igreja Cristã Maranata.",
-  "start_url": "index.html",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f8fafc",

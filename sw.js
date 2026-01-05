@@ -1,4 +1,4 @@
-const CACHE_NAME = 'obreiros-icm-v4';
+const CACHE_NAME = 'obreiros-icm-v5';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -18,7 +18,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Ativação e limpeza de lixo
+// Ativação e limpeza de caches antigos
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -34,20 +34,32 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Estratégia: Network First, falling back to cache
+// Estratégia de busca inteligente
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  // Se for uma navegação (abrir o app), tenta a rede e cai para o index.html do cache
+  const url = new URL(event.request.url);
+
+  // Lógica especial para navegação (abrir o app)
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() => {
-        return caches.match('./index.html') || caches.match('./');
-      })
+      fetch(event.request)
+        .then((response) => {
+          // Se o servidor retornar 404, tenta entregar o index do cache
+          if (response.status === 404) {
+            return caches.match('./index.html') || caches.match('./') || response;
+          }
+          return response;
+        })
+        .catch(() => {
+          // Se estiver offline ou der erro de rede, entrega o cache
+          return caches.match('./index.html') || caches.match('./');
+        })
     );
     return;
   }
 
+  // Para outros recursos, tenta cache primeiro, depois rede
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
@@ -55,16 +67,19 @@ self.addEventListener('fetch', (event) => {
       }
 
       return fetch(event.request).then((networkResponse) => {
-        // Cacheia novos recursos (como scripts esm.sh)
-        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
+        // Não cacheia se não for uma resposta válida ou se for de outro domínio sem CORS
+        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+          return networkResponse;
         }
+
+        const responseToCache = networkResponse.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseToCache);
+        });
+
         return networkResponse;
       }).catch(() => {
-        // Silenciosamente falha para outros tipos de arquivo
+        // Falha silenciosa para recursos que não são a página principal
       });
     })
   );
