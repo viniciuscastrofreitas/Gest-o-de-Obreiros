@@ -1,16 +1,14 @@
-
-const CACHE_NAME = 'obreiros-icm-v2';
+const CACHE_NAME = 'obreiros-icm-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './index.tsx',
   './manifest.json',
   'https://cdn.tailwindcss.com',
   'https://fonts.googleapis.com/icon?family=Material+Icons',
   'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap'
 ];
 
-// Instalação: Salva arquivos essenciais no cache
+// Instalação
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -20,7 +18,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Ativação: Limpa caches antigos
+// Ativação e limpeza de lixo
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -36,10 +34,19 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Interceptação de requisições: Tenta o cache primeiro, se não tiver, busca na rede e salva no cache
+// Estratégia: Network First, falling back to cache
 self.addEventListener('fetch', (event) => {
-  // Ignorar requisições que não sejam GET
   if (event.request.method !== 'GET') return;
+
+  // Se for uma navegação (abrir o app), tenta a rede e cai para o index.html do cache
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return caches.match('./index.html') || caches.match('./');
+      })
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
@@ -48,8 +55,8 @@ self.addEventListener('fetch', (event) => {
       }
 
       return fetch(event.request).then((networkResponse) => {
-        // Salva novas requisições no cache dinamicamente (ex: scripts do esm.sh)
-        if (networkResponse && networkResponse.status === 200) {
+        // Cacheia novos recursos (como scripts esm.sh)
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);
@@ -57,8 +64,7 @@ self.addEventListener('fetch', (event) => {
         }
         return networkResponse;
       }).catch(() => {
-        // Se estiver offline e não houver no cache, retorna nada ou uma página de fallback
-        return new Response("Offline content not available");
+        // Silenciosamente falha para outros tipos de arquivo
       });
     })
   );
