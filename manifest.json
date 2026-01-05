@@ -1,8 +1,8 @@
 {
   "name": "Gestão de Obreiros ICM",
   "short_name": "Obreiros ICM",
-  "description": "Relatório de cultos para obreiros da Igreja Cristã Maranata.",
-  "id": "br.org.icm.obreiros.v11",
+  "description": "Sistema de relatório de cultos para obreiros da Igreja Cristã Maranata.",
+  "id": "icm-obreiros-santo-antonio-v1",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

@@ -5,38 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#312e81">
     
-    <!-- Meta tags para o Android entender que é um App -->
+    <!-- Força o modo App no Android e iOS -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="application-name" content="Obreiros ICM">
     <meta name="apple-mobile-web-app-title" content="Obreiros ICM">
-
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+
     <link rel="manifest" href="./manifest.json">
-    
     <title>Gestão de Obreiros - ICM</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
     <style>
-        html { background-color: #f8fafc; height: 100%; }
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #f8fafc;
             margin: 0; padding: 0;
             -webkit-tap-highlight-color: transparent;
-            min-height: 100vh;
             width: 100%;
+            height: 100vh;
+            overflow: hidden; /* Importante para o modo App */
+            position: fixed;
         }
-        /* Previne o scroll elástico no iOS */
-        body { position: fixed; overflow: hidden; height: 100%; }
-        #root { overflow-y: auto; height: 100%; -webkit-overflow-scrolling: touch; }
+        #root {
+            height: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        input, select, textarea {
+            user-select: text;
+        }
     </style>
     <script type="importmap">
     {
@@ -52,13 +53,11 @@
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
     <script>
+        // Registro robusto do Service Worker (estilo projeto Louvores)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // Registra o Service Worker garantindo que o escopo seja a raiz absoluta
                 navigator.serviceWorker.register('./sw.js', { scope: './' })
-                    .then(reg => {
-                        console.log('App pronto para uso offline v11');
-                    })
+                    .then(reg => console.log('App pronto para uso offline!'))
                     .catch(err => console.log('Erro PWA:', err));
             });
         }
