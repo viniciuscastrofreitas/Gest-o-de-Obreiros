@@ -233,7 +233,7 @@ const App: React.FC = () => {
       <main className="max-w-xl mx-auto px-4 mt-8 pb-12">
         {activeTab === 'form' && (
           <div className="bg-white rounded-[2rem] shadow-xl p-8 border border-slate-100 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Campo Data */}
+            {/* Campo Data - Refinado */}
             <div className="space-y-4">
               <label className="text-[11px] font-black text-indigo-900 uppercase block tracking-[0.2em] ml-1">Data e Dia</label>
               <div className="flex flex-col gap-3">
@@ -241,11 +241,11 @@ const App: React.FC = () => {
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-base outline-none focus:border-indigo-500 focus:bg-white transition-all shadow-inner"
+                  className="w-full p-3 bg-slate-50 border-2 border-slate-100 rounded-xl font-bold text-sm outline-none focus:border-indigo-500 focus:bg-white transition-all shadow-inner"
                 />
                 <div className="flex gap-3">
-                  <button onClick={() => setDate(getTodayStr())} className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all shadow-sm active:scale-95 ${date === getTodayStr() ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500 border border-slate-200'}`}>Hoje</button>
-                  <button onClick={() => setDate(getYesterdayStr())} className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all shadow-sm active:scale-95 ${date === getYesterdayStr() ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500 border border-slate-200'}`}>Ontem</button>
+                  <button onClick={() => setDate(getTodayStr())} className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase transition-all shadow-sm active:scale-95 ${date === getTodayStr() ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500 border border-slate-200'}`}>Hoje</button>
+                  <button onClick={() => setDate(getYesterdayStr())} className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase transition-all shadow-sm active:scale-95 ${date === getYesterdayStr() ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500 border border-slate-200'}`}>Ontem</button>
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-2 mt-4">
@@ -358,7 +358,6 @@ const App: React.FC = () => {
                     </div>
                   </div>
                   <div className="p-6 grid gap-4 text-sm">
-                    {/* Atividade Colorida: Portão */}
                     <div className="bg-sky-50 p-3 rounded-2xl border border-sky-100 flex justify-between items-center px-5">
                       <div className="flex items-center gap-3">
                         <span className="material-icons text-sky-400 text-xl">door_front</span>
@@ -367,7 +366,6 @@ const App: React.FC = () => {
                       <span className="font-black text-sky-900 uppercase truncate max-w-[150px]">{report.portao}</span>
                     </div>
 
-                    {/* Atividade Colorida: Louvor */}
                     <div className="bg-violet-50 p-3 rounded-2xl border border-violet-100 flex justify-between items-center px-5">
                       <div className="flex items-center gap-3">
                         <span className="material-icons text-violet-400 text-xl">mic</span>
@@ -376,7 +374,6 @@ const App: React.FC = () => {
                       <span className="font-black text-violet-900 uppercase truncate max-w-[150px]">{report.louvor}</span>
                     </div>
 
-                    {/* Atividade Colorida: Palavra */}
                     {report.palavra !== 'NÃO HOUVE' && (
                       <div className="bg-amber-50 p-3 rounded-2xl border border-amber-100 flex justify-between items-center px-5">
                         <div className="flex items-center gap-3">
