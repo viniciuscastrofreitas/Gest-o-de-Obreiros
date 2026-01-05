@@ -1,14 +1,14 @@
-const CACHE_NAME = 'obreiros-icm-v7';
+const CACHE_NAME = 'obreiros-icm-v8';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
   'https://cdn.tailwindcss.com',
   'https://fonts.googleapis.com/icon?family=Material+Icons',
-  'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap'
+  'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap',
+  'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'
 ];
 
-// Instalação
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -18,7 +18,6 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Ativação e limpeza de caches antigos
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -34,13 +33,10 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Interceptação de requisições
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  const url = new URL(event.request.url);
-
-  // Se for navegação (abrir o app)
+  // Lógica para navegação (abrir o app) - Evita o 404 do servidor
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
@@ -51,24 +47,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Estratégia: Cache First, Network Fallback
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) return cachedResponse;
-
-      return fetch(event.request).then((networkResponse) => {
+      return cachedResponse || fetch(event.request).then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200) {
-          const responseToCache = networkResponse.clone();
+          const cacheCopy = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
+            cache.put(event.request, cacheCopy);
           });
         }
         return networkResponse;
       }).catch(() => {
-        // Se falhar a rede e não tiver cache, tenta o index para evitar tela branca
-        if (event.request.destination === 'document') {
-          return caches.match('./index.html');
-        }
+        // Fallback offline
       });
     })
   );

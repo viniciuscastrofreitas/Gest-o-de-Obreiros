@@ -2,8 +2,8 @@
   "name": "Gestão de Obreiros ICM",
   "short_name": "Obreiros ICM",
   "description": "Sistema de relatório de cultos para obreiros da Igreja Cristã Maranata.",
-  "id": "./",
-  "start_url": "./",
+  "id": "icm-obreiros-v1",
+  "start_url": "index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
@@ -13,13 +13,14 @@
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
   ]
 }
