@@ -1,5 +1,5 @@
 {
-  "name": "Relatório de Culto - Obreiros",
-  "description": "Um sistema completo para gerenciar e consultar o histórico de atividades dos obreiros nos cultos da igreja, incluindo funções de backup, estatísticas e resumo por obreiro.",
+  "name": "Gestão de Obreiros ICM",
+  "description": "App PWA para relatório de obreiros com suporte a instalação e backup.",
   "requestFramePermissions": []
 }
