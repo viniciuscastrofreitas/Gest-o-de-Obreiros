@@ -1,6 +1,5 @@
-const CACHE_NAME = 'obreiros-icm-v5';
+const CACHE_NAME = 'obreiros-icm-v6';
 const ASSETS_TO_CACHE = [
-  './',
   './index.html',
   './manifest.json',
   'https://cdn.tailwindcss.com',
@@ -18,7 +17,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Ativação e limpeza de caches antigos
+// Ativação e limpeza
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -34,52 +33,39 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Estratégia de busca inteligente
+// Interceptação de requisições
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  const url = new URL(event.request.url);
-
-  // Lógica especial para navegação (abrir o app)
+  // Se for uma navegação (abrir o app), prioriza a rede mas cai no index.html cacheado imediatamente em caso de erro/404
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          // Se o servidor retornar 404, tenta entregar o index do cache
           if (response.status === 404) {
-            return caches.match('./index.html') || caches.match('./') || response;
+            return caches.match('./index.html');
           }
           return response;
         })
         .catch(() => {
-          // Se estiver offline ou der erro de rede, entrega o cache
-          return caches.match('./index.html') || caches.match('./');
+          return caches.match('./index.html');
         })
     );
     return;
   }
 
-  // Para outros recursos, tenta cache primeiro, depois rede
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
-      return fetch(event.request).then((networkResponse) => {
-        // Não cacheia se não for uma resposta válida ou se for de outro domínio sem CORS
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
+      return cachedResponse || fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
         }
-
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-
         return networkResponse;
       }).catch(() => {
-        // Falha silenciosa para recursos que não são a página principal
+        // Fallback para imagens ou outros recursos se necessário
       });
     })
   );

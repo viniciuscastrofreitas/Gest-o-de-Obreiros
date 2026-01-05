@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#312e81">
     
+    <!-- Android / Chrome -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Obreiros ICM">
+    
     <!-- Apple Mobile Web App -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -29,18 +33,15 @@
             margin: 0;
             padding: 0;
             -webkit-tap-highlight-color: transparent;
-            /* Habilita rolagem natural e suave */
             overflow-x: hidden;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             min-height: 100vh;
             width: 100%;
         }
-        /* Ajuste para Notch de celulares modernos */
         header {
             padding-top: env(safe-area-inset-top);
         }
-        /* Melhoria de acessibilidade para inputs em foco no iOS para evitar zoom automático indesejado */
         @media screen and (max-width: 768px) {
             input, select, textarea {
                 font-size: 16px !important;
@@ -63,7 +64,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
+                navigator.serviceWorker.register('./sw.js', { scope: './' })
                     .then(reg => console.log('Service Worker registrado!', reg.scope))
                     .catch(err => console.log('Falha ao registrar SW:', err));
             });
